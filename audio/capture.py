@@ -11,7 +11,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from detector.preprocessing import preprocess_audio
 
 SAMPLE_RATE = 16000
-CHUNK_SECONDS = 3
+# CHUNK_SECONDS = 3
+# change by aman
+CHUNK_SECONDS = 5
+# ******************
 DEVICE_NAME = "CABLE Output"  # your virtual cable's input device name
 OUTPUT_DIR = "./audio/captured_chunks"
 
@@ -62,7 +65,13 @@ def start_capture(stop_event, on_chunk=None):
             while len(buffer) >= chunk_samples:
                 raw_chunk = buffer[:chunk_samples]
                 buffer = buffer[chunk_samples:]
-
+                # change by aman
+                SILENCE_THRESHOLD = 0.005
+                rms = np.sqrt(np.mean(raw_chunk**2))
+                if rms < SILENCE_THRESHOLD:
+                    # Agar audio me koi bol nahi raha hai toh AI prediction skip karo
+                    continue
+                # **************************
                 processed_chunk = preprocess_audio(raw_chunk, SAMPLE_RATE)
 
                 filename = os.path.join(OUTPUT_DIR, f"chunk_{int(time.time() * 1000)}.wav")
